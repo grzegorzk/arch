@@ -1,6 +1,10 @@
-ARG ARCH_ARCHIVE_YEAR=2021
-ARG ARCH_ARCHIVE_MONTH=03
+ARG ARCH_ARCHIVE_YEAR=$(date +%Y)
+ARG ARCH_ARCHIVE_MONTH=$(date +%m)
 ARG ARCH_ARCHIVE_DAY=01
+
+ARG ARCH_BOOTSTRAP_YEAR=$(date +%Y)
+ARG ARCH_BOOTSTRAP_MONTH=$(date +%m)
+ARG ARCH_BOOTSTRAP_DAY=01
 
 FROM alpine:3 AS downloader
 
@@ -9,14 +13,14 @@ RUN apk update \
         curl \
         gnupg
 
-ARG ARCH_ARCHIVE_YEAR
-ARG ARCH_ARCHIVE_MONTH
-ARG ARCH_ARCHIVE_DAY
-ARG ARCH_BOOTSTRAP_VERSION=${ARCH_ARCHIVE_YEAR}.${ARCH_ARCHIVE_MONTH}.${ARCH_ARCHIVE_DAY}
-ARG ARCH_BOOTSTRAP_URL=http://pkg.adfinis-sygroup.ch/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz
+ARG ARCH_BOOTSTRAP_YEAR
+ARG ARCH_BOOTSTRAP_MONTH
+ARG ARCH_BOOTSTRAP_DAY
+ARG ARCH_BOOTSTRAP_VERSION=${ARCH_BOOTSTRAP_YEAR}.${ARCH_BOOTSTRAP_MONTH}.${ARCH_BOOTSTRAP_DAY}
 
 # Nameserver seems to improve stability of gpg
-RUN echo "Downloading bootstrap from ${ARCH_BOOTSTRAP_URL}" \
+RUN ARCH_BOOTSTRAP_URL=http://pkg.adfinis-sygroup.ch/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz \
+    && echo "Downloading bootstrap from ${ARCH_BOOTSTRAP_URL}" \
     && echo "nameserver 84.200.69.80" > /etc/resolv.conf \
     && cd /tmp \
     && curl -0 --insecure ${ARCH_BOOTSTRAP_URL} > image.tar.gz \
@@ -31,14 +35,20 @@ FROM scratch AS archbootstrap
 COPY --from=downloader /tmp/root.x86_64 /
 COPY docker_files/skim.sh /build/root/skim.sh
 
+ARG ARCH_BOOTSTRAP_YEAR
+ARG ARCH_BOOTSTRAP_MONTH
+ARG ARCH_BOOTSTRAP_DAY
+ARG ARCH_ARCHIVE_VERSION_FOR_BOOTSTRAP=${ARCH_BOOTSTRAP_YEAR}/${ARCH_BOOTSTRAP_MONTH}/${ARCH_BOOTSTRAP_DAY}
+ARG ARCH_ARCHIVE_MIRROR_FOR_BOOTSTRAP=https://archive.archlinux.org/repos/${ARCH_ARCHIVE_VERSION_FOR_BOOTSTRAP}/\$repo/os/\$arch
+
 ARG ARCH_ARCHIVE_YEAR
 ARG ARCH_ARCHIVE_MONTH
 ARG ARCH_ARCHIVE_DAY
 ARG ARCH_ARCHIVE_VERSION=${ARCH_ARCHIVE_YEAR}/${ARCH_ARCHIVE_MONTH}/${ARCH_ARCHIVE_DAY}
 ARG ARCH_ARCHIVE_MIRROR=https://archive.archlinux.org/repos/${ARCH_ARCHIVE_VERSION}/\$repo/os/\$arch
 
-RUN echo "Using packages mirror: ${ARCH_ARCHIVE_MIRROR}" \
-    && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
+RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR_FOR_BOOTSTRAP}' for installing packages in boostrap system" \
+    && echo "Server = ${ARCH_ARCHIVE_MIRROR_FOR_BOOTSTRAP}" > /etc/pacman.d/mirrorlist \
     && cp /etc/pacman.conf /etc/pacman.conf.bak \
     && awk '{gsub(/SigLevel.*= Required DatabaseOptional/,"SigLevel = Never");gsub(/\[community\]/,"\[community\]\nSigLevel = Never");}1' /etc/pacman.conf.bak > /etc/pacman.conf \
     && pacman -Sy --noconfirm haveged wget sed \
@@ -48,6 +58,12 @@ RUN echo "Using packages mirror: ${ARCH_ARCHIVE_MIRROR}" \
     && pacman-key --populate archlinux \
     && mkdir -p /build/var/lib/pacman \
     && sed -i -- 's/#\(XferCommand = \/usr\/bin\/wget \-\-passive\-ftp \-c \-O %o %u\)/\1/g' /etc/pacman.conf \
+    && echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages in final system" \
+    && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
+    && pacman -Sy --noconfirm archlinux-keyring ca-certificates \
+    && rm -rf /etc/pacman.d/gnupg \
+    && pacman-key --init \
+    && pacman-key --populate archlinux \
     && pacman -r /build -Sy --disable-download-timeout --noconfirm \
         bash \
         bzip2 \
