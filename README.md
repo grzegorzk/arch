@@ -6,10 +6,8 @@ Size of uncompressed image is approximately 236 Mb.
 
 # build
 
-If Arch Linux archives exist at given date then you should be able to build an image using that as mirrors.
+We are using most current bootstrap image which is usually released on the first of each month.
 
-Example - build image like it was 2nd of January 2015:
-
-```bash
-make build ARCHIVE_DAY=02 ARCHIVE_MONTH=01 ARCHIVE_YEAR=2015 DOCKER=docker
+```
+make build DOCKER=docker
 ```
