@@ -7,6 +7,9 @@ BOOTSTRAP_DAY=01
 BOOTSTRAP_MONTH=$(shell date +%m)
 BOOTSTRAP_YEAR=$(shell date +%Y)
 
+MIRROR='http://pkg.adfinis-sygroup.ch/archlinux/$$repo/os/$$arch'
+
+
 IMG_NAME=techgk/arch:${BOOTSTRAP_YEAR}${BOOTSTRAP_MONTH}${BOOTSTRAP_DAY}
 
 
@@ -23,6 +26,7 @@ build:
 		--build-arg ARCH_BOOTSTRAP_YEAR=${BOOTSTRAP_YEAR} \
 		--build-arg ARCH_BOOTSTRAP_MONTH=${BOOTSTRAP_MONTH} \
 		--build-arg ARCH_BOOTSTRAP_DAY=${BOOTSTRAP_DAY} \
+		--build-arg MIRROR=${MIRROR} \
 		-t ${IMG_NAME} .;
 
 run:

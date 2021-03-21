@@ -1,5 +1,5 @@
-ARG ARCH_BOOTSTRAP_YEAR=$(date +%Y)
-ARG ARCH_BOOTSTRAP_MONTH=$(date +%m)
+ARG ARCH_BOOTSTRAP_YEAR="$(date +%Y)"
+ARG ARCH_BOOTSTRAP_MONTH="$(date +%m)"
 ARG ARCH_BOOTSTRAP_DAY=01
 
 ARG MIRROR='http://pkg.adfinis-sygroup.ch/archlinux/$repo/os/$arch'

@@ -8,6 +8,14 @@ Size of uncompressed image is approximately 236 Mb.
 
 We are using most current bootstrap image which is usually released on the first of each month.
 
+To build current image using podman:
+
+```
+make build
+```
+
+To build current image using docker:
+
 ```
 make build DOCKER=docker
 ```
