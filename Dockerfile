@@ -29,6 +29,7 @@ RUN echo "Downloading bootstrap from ${ARCH_BOOTSTRAP_URL}" \
 FROM scratch AS archbootstrap
 
 COPY --from=downloader /tmp/root.x86_64 /
+COPY docker_files/skim.sh /build/root/skim.sh
 
 ARG ARCH_ARCHIVE_YEAR
 ARG ARCH_ARCHIVE_MONTH
@@ -58,26 +59,7 @@ RUN echo "Using packages mirror: ${ARCH_ARCHIVE_MIRROR}" \
         nano \
         wget \
     && rm -rf /var/cache/pacman/pkg/* \
-    && echo "Removing unused locale, leaving only en_US locale" \
-    && mv -vf /build/usr/share/locale/{en_US,locale.alias} /tmp \
-    && rm -r /build/usr/share/locale/* \
-    && mv -vf /tmp/{en_US,locale.alias} /build/usr/share/locale/ \
-    && mv -vf /build/usr/share/i18n/locales/{en_US,en_GB,i18n,i18n_ctype,iso14651_t1,iso14651_t1_common,translit_*} /tmp \
-    && rm -r /build/usr/share/i18n/locales/* \
-    && mv -vf /tmp/{en_US,en_GB,i18n,i18n_ctype,iso14651_t1,iso14651_t1_common,translit_*} /build/usr/share/i18n/locales/ \
-    && echo "Removing unused timezones, leaving only UTC timezone" \
-    && mv -vf /build/usr/share/zoneinfo/UTC /tmp \
-    && rm -r /build/usr/share/zoneinfo/* \
-    && mv -vf /tmp/UTC /build/usr/share/zoneinfo \
-    && echo "Removing man pages" \
-    && rm -r /build/usr/share/man/* \
-    && rm -r /build/usr/share/info/* \
-    && rm -r /build/usr/share/doc/* \
-    && echo "Removing include and *.a files" \
-    && rm /build/usr/lib/*.a \
-    && rm -r /build/usr/include/* \
-    && echo "Not planning to use programs written in GO" \
-    && rm /build/usr/lib/libgo.so* \
+    && /bin/bash /build/root/skim.sh --root=/build \
     && sed -i -- 's/#\(XferCommand = \/usr\/bin\/wget \-\-passive\-ftp \-c \-O %o %u\)/\1/g' /build/etc/pacman.conf \
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" >> /build/etc/pacman.d/mirrorlist
 

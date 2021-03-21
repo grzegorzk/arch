@@ -1,6 +1,7 @@
 SHELL=/bin/bash
 
 DOCKER=podman
+DOCKER_SECRET="${CURDIR}"/docker_access_token.secret
 
 DAY=01
 MONTH=$(shell date +%m)
@@ -28,3 +29,12 @@ run:
 		--net=host -it --rm \
 		${IMG_NAME} \
 		/bin/bash
+
+push:
+	@ $(MAKE) -s build DOCKER=docker;
+	@ cat "${DOCKER_SECRET}" | docker login --username techgk --password-stdin
+	@ docker tag ${IMG_NAME} techgk/arch:${YEAR}${MONTH}${DAY} \
+		&& docker push techgk/arch:${YEAR}${MONTH}${DAY};
+	@ docker tag ${IMG_NAME} techgk/arch:latest \
+		&& docker push techgk/arch:latest;
+
