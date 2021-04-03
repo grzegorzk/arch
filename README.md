@@ -8,7 +8,7 @@ This is to prevent issues that may arise due to updates GPG signing keys or upda
 
 # build
 
-We are using most current bootstrap image which is usually released on the first of each month.
+We are using most recent bootstrap image which is usually released on the first of each month.
 
 To build current image using podman:
 
