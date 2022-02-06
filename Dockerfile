@@ -2,6 +2,10 @@ ARG ARCH_BOOTSTRAP_YEAR="$(date +%Y)"
 ARG ARCH_BOOTSTRAP_MONTH="$(date +%m)"
 ARG ARCH_BOOTSTRAP_DAY=01
 
+ARG PACMAN_ARCHIVES_YEAR="$(date +%Y)"
+ARG PACMAN_ARCHIVES_MONTH="$(date +%m)"
+ARG PACMAN_ARCHIVES_DAY=01
+
 
 FROM alpine:3 AS downloader
 
@@ -40,11 +44,11 @@ FROM scratch AS archbootstrap
 COPY --from=downloader /tmp/root.x86_64 /
 COPY docker_files/skim.sh /build/root/skim.sh
 
-ARG ARCH_BOOTSTRAP_YEAR
-ARG ARCH_BOOTSTRAP_MONTH
-ARG ARCH_BOOTSTRAP_DAY
-ARG ARCH_ARCHIVE_VERSION_FOR_BOOTSTRAP=${ARCH_BOOTSTRAP_YEAR}/${ARCH_BOOTSTRAP_MONTH}/${ARCH_BOOTSTRAP_DAY}
-ARG ARCH_ARCHIVE_MIRROR=https://archive.archlinux.org/repos/${ARCH_ARCHIVE_VERSION_FOR_BOOTSTRAP}/\$repo/os/\$arch
+ARG PACMAN_ARCHIVES_YEAR
+ARG PACMAN_ARCHIVES_MONTH
+ARG PACMAN_ARCHIVES_DAY
+ARG PACMAN_ARCHIVES_VERSION=${PACMAN_ARCHIVES_YEAR}/${PACMAN_ARCHIVES_MONTH}/${PACMAN_ARCHIVES_DAY}
+ARG ARCH_ARCHIVE_MIRROR=https://archive.archlinux.org/repos/${PACMAN_ARCHIVES_VERSION}/\$repo/os/\$arch
 
 RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages in boostrap system" \
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
