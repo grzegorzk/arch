@@ -59,9 +59,5 @@ rm -rf usr/share/man/*
 rm -rf usr/share/info/*
 rm -rf usr/share/doc/*
 
-echo "Removing include and *.a files"
-rm -f usr/lib/*.a
-rm -rf usr/include/*
-
 echo "Not planning to use programs written in GO"
 rm -f usr/lib/libgo.so*
