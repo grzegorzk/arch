@@ -54,7 +54,7 @@ RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
     && cp /etc/pacman.conf /etc/pacman.conf.bak \
     && awk '{gsub(/SigLevel.*= Required DatabaseOptional/,"SigLevel = Never");gsub(/\[community\]/,"\[community\]\nSigLevel = Never");}1' /etc/pacman.conf.bak > /etc/pacman.conf \
-    && pacman -Sy --noconfirm haveged wget sed \
+    && pacman -Sy --noconfirm archlinux-keyring haveged sed wget \
     && cp /etc/pacman.conf.bak /etc/pacman.conf \
     && haveged -w 1024 \
     && pacman-key --init \
@@ -72,6 +72,7 @@ RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages
         sed \
         haveged \
         pacman \
+        archlinux-keyring \
         nano \
         wget \
     && rm -rf /var/cache/pacman/pkg/* \
