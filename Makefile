@@ -25,6 +25,7 @@ list:
 
 build:
 	@ ${DOCKER} build \
+		--progress=plain \
 		--build-arg ARCH_BOOTSTRAP_YEAR=${BOOTSTRAP_YEAR} \
 		--build-arg ARCH_BOOTSTRAP_MONTH=${BOOTSTRAP_MONTH} \
 		--build-arg ARCH_BOOTSTRAP_DAY=${BOOTSTRAP_DAY} \
