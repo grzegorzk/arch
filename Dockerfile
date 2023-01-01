@@ -22,10 +22,11 @@ ARG ARCH_BOOTSTRAP_VERSION=${ARCH_BOOTSTRAP_YEAR}.${ARCH_BOOTSTRAP_MONTH}.${ARCH
 
 # Nameserver seems to improve stability of gpg
 RUN ARCH_BOOTSTRAP_URL=http://pkg.adfinis-sygroup.ch/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz \
+    && ARCH_BOOTSTRAP_SIG_URL=https://archlinux.org/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz.sig \
     && echo "Downloading bootstrap from ${ARCH_BOOTSTRAP_URL}" \
     && cd /tmp \
     && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_URL} > image.tar.gz \
-    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_URL}.sig > image.tar.gz.sig
+    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_SIG_URL} > image.tar.gz.sig
 
 # Split signing so if anything fails on gpg end we don't have to download bootstrap image again
 # If pgp.mit.edu fails then try pool.sks-keyservers.net
@@ -34,6 +35,7 @@ RUN mkdir -p ~/.gnupg \
     && chmod go= ~/.gnupg -R \
     && pkill -i -e dirmngr || true \
     && cd /tmp \
+    && gpg -v --keyserver pgp.mit.edu --auto-key-locate clear,wkd --locate-external-key pierre@archlinux.org \
     && gpg -v --keyserver pgp.mit.edu --recv-keys 9741E8AC \
     && gpg -v --verify image.tar.gz.sig \
     && tar -xzf image.tar.gz \
