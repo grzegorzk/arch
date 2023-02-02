@@ -19,9 +19,10 @@ ARG ARCH_BOOTSTRAP_YEAR
 ARG ARCH_BOOTSTRAP_MONTH
 ARG ARCH_BOOTSTRAP_DAY
 ARG ARCH_BOOTSTRAP_VERSION=${ARCH_BOOTSTRAP_YEAR}.${ARCH_BOOTSTRAP_MONTH}.${ARCH_BOOTSTRAP_DAY}
+ARG ARCH_MIRROR
 
 # Nameserver seems to improve stability of gpg
-RUN ARCH_BOOTSTRAP_URL=http://pkg.adfinis-sygroup.ch/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz \
+RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz \
     && ARCH_BOOTSTRAP_SIG_URL=https://archlinux.org/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz.sig \
     && echo "Downloading bootstrap from ${ARCH_BOOTSTRAP_URL}" \
     && cd /tmp \
@@ -35,9 +36,10 @@ RUN mkdir -p ~/.gnupg \
     && chmod go= ~/.gnupg -R \
     && pkill -i -e dirmngr || true \
     && cd /tmp \
-    && gpg -v --keyserver pgp.mit.edu --auto-key-locate clear,wkd --locate-external-key pierre@archlinux.org \
-    && gpg -v --keyserver pgp.mit.edu --recv-keys 9741E8AC \
-    && gpg -v --verify image.tar.gz.sig \
+    && echo "Obtaining the key from keyserver" \
+    && gpg --auto-key-locate clear,wkd -v --locate-external-key pierre@archlinux.org \
+    && echo "Verifying arch image" \
+    && gpg -v --verify image.tar.gz.sig image.tar.gz \
     && tar -xzf image.tar.gz \
     && rm image.tar.gz && rm image.tar.gz.sig
 
