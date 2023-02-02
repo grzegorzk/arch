@@ -11,6 +11,10 @@ PACMAN_ARCHIVES_DAY=01
 PACMAN_ARCHIVES_MONTH=$(shell date +%m)
 PACMAN_ARCHIVES_YEAR=$(shell date +%Y)
 
+IMG_BUILD_DAY=$(shell date +%d)
+IMG_BUILD_MONTH=$(shell date +%m)
+IMG_BUILD_YEAR=$(shell date +%Y)
+
 ARCH_MIRROR=https://mirror.metanet.ch
 
 
@@ -36,6 +40,7 @@ build:
 		--build-arg PACMAN_ARCHIVES_YEAR=${PACMAN_ARCHIVES_YEAR} \
 		--build-arg ARCH_MIRROR="${ARCH_MIRROR}" \
 		-t ${IMG_NAME} .;
+	@ ${DOCKER} tag ${IMG_NAME} ${IMG_NAME}_${IMG_BUILD_YEAR}${IMG_BUILD_MONTU}${IMG_BUILD_DAY}
 
 run:
 	@ ${DOCKER} run \
