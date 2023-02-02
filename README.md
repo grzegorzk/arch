@@ -22,4 +22,4 @@ To build current image using docker:
 make build DOCKER=docker
 ```
 
-Note: sometimes Arch Linux archives return 404 when building from given day, in such case ARCH_ARCHIVES_DAY needs to be set to another day which does not result in error.
+Note: sometimes bootstrap image is not released on the first of given month, in such case add BOOTSTRAP_DAY parameter when building the image and set it to another day which does not result in error.
