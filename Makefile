@@ -15,7 +15,7 @@ IMG_BUILD_DAY=$(shell date +%d)
 IMG_BUILD_MONTH=$(shell date +%m)
 IMG_BUILD_YEAR=$(shell date +%Y)
 
-ARCH_MIRROR=https://mirror.metanet.ch
+ARCH_MIRROR=https://mirror.puzzle.ch
 
 
 IMG_NAME=techgk/arch:${PACMAN_ARCHIVES_YEAR}${PACMAN_ARCHIVES_MONTH}${PACMAN_ARCHIVES_DAY}
@@ -31,7 +31,7 @@ list:
 
 build:
 	@ ${DOCKER} build \
-		--progress=plain \
+		--progress=plain --no-cache \
 		--build-arg ARCH_BOOTSTRAP_YEAR=${BOOTSTRAP_YEAR} \
 		--build-arg ARCH_BOOTSTRAP_MONTH=${BOOTSTRAP_MONTH} \
 		--build-arg ARCH_BOOTSTRAP_DAY=${BOOTSTRAP_DAY} \
