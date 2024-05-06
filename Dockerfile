@@ -9,11 +9,14 @@ ARG PACMAN_ARCHIVES_DAY=01
 
 FROM alpine:3 AS downloader
 
+# Busybox tar does not support all features
 RUN apk update \
     && apk add --no-cache \
         curl \
         gnupg \
-        procps
+        procps \
+        tar \
+        zstd
 
 ARG ARCH_BOOTSTRAP_YEAR
 ARG ARCH_BOOTSTRAP_MONTH
@@ -22,12 +25,12 @@ ARG ARCH_BOOTSTRAP_VERSION=${ARCH_BOOTSTRAP_YEAR}.${ARCH_BOOTSTRAP_MONTH}.${ARCH
 ARG ARCH_MIRROR
 
 # Nameserver seems to improve stability of gpg
-RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz \
-    && ARCH_BOOTSTRAP_SIG_URL=https://archlinux.org/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.gz.sig \
+RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.zst \
+    && ARCH_BOOTSTRAP_SIG_URL=https://archlinux.org/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.zst.sig \
     && echo "Downloading bootstrap from ${ARCH_BOOTSTRAP_URL}" \
     && cd /tmp \
-    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_URL} > image.tar.gz \
-    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_SIG_URL} > image.tar.gz.sig
+    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_URL} > image.tar.zst \
+    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_SIG_URL} > image.tar.zst.sig
 
 # Split signing so if anything fails on gpg end we don't have to download bootstrap image again
 # If pgp.mit.edu fails then try pool.sks-keyservers.net
@@ -39,9 +42,9 @@ RUN mkdir -p ~/.gnupg \
     && echo "Obtaining the key from keyserver" \
     && gpg --auto-key-locate clear,wkd -v --locate-external-key pierre@archlinux.org \
     && echo "Verifying arch image" \
-    && gpg -v --verify image.tar.gz.sig image.tar.gz \
-    && tar -xzf image.tar.gz \
-    && rm image.tar.gz && rm image.tar.gz.sig
+    && gpg -v --verify image.tar.zst.sig image.tar.zst \
+    && tar -xf image.tar.zst \
+    && rm image.tar.zst && rm image.tar.zst.sig
 
 FROM scratch AS archbootstrap
 
@@ -64,7 +67,6 @@ RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages
     && pacman-key --init \
     && pacman-key --populate archlinux \
     && mkdir -p /build/var/lib/pacman \
-    && sed -i -- 's/#\(XferCommand = \/usr\/bin\/wget \-\-passive\-ftp \-c \-O %o %u\)/\1/g' /etc/pacman.conf \
     && echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages in final system" \
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
     && pacman -Sy --noconfirm archlinux-keyring ca-certificates \
@@ -81,7 +83,6 @@ RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages
         wget \
     && rm -rf /var/cache/pacman/pkg/* \
     && /bin/bash /build/root/skim.sh --root=/build \
-    && sed -i -- 's/#\(XferCommand = \/usr\/bin\/wget \-\-passive\-ftp \-c \-O %o %u\)/\1/g' /build/etc/pacman.conf \
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" >> /build/etc/pacman.d/mirrorlist
 
 FROM scratch AS arch
