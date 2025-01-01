@@ -24,23 +24,23 @@ ARG ARCH_BOOTSTRAP_DAY
 ARG ARCH_BOOTSTRAP_VERSION=${ARCH_BOOTSTRAP_YEAR}.${ARCH_BOOTSTRAP_MONTH}.${ARCH_BOOTSTRAP_DAY}
 ARG ARCH_MIRROR
 
-# Nameserver seems to improve stability of gpg
 RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.zst \
     && ARCH_BOOTSTRAP_SIG_URL=https://archlinux.org/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.zst.sig \
     && echo "Downloading bootstrap from ${ARCH_BOOTSTRAP_URL}" \
     && cd /tmp \
     && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_URL} > image.tar.zst \
+    && echo "Downloading bootstrap .sig from ${ARCH_BOOTSTRAP_SIG_URL}" \
     && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_SIG_URL} > image.tar.zst.sig
 
-# Split signing so if anything fails on gpg end we don't have to download bootstrap image again
-# If pgp.mit.edu fails then try pool.sks-keyservers.net
+# Arch master keys: https://archlinux.org/master-keys/
 RUN mkdir -p ~/.gnupg \
     && echo standard-resolver > ~/.gnupg/dirmngr.conf \
     && chmod go= ~/.gnupg -R \
     && pkill -i -e dirmngr || true \
     && cd /tmp \
     && echo "Obtaining the key from keyserver" \
-    && gpg --auto-key-locate clear,wkd -v --locate-external-key pierre@archlinux.org \
+    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 -X GET 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3e80ca1a8b89f69cba57d98a76a5ef9054449a5c' > /tmp/pierre.asc \
+    && gpg --import /tmp/pierre.asc \
     && echo "Verifying arch image" \
     && gpg -v --verify image.tar.zst.sig image.tar.zst \
     && tar -xf image.tar.zst \
