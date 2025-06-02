@@ -23,3 +23,13 @@ make build DOCKER=docker
 ```
 
 Note: sometimes bootstrap image is not released on the first of given month, in such case add BOOTSTRAP_DAY parameter when building the image and set it to another day which does not result in error.
+
+
+## building images before June 2025
+
+In June 2025 mirrors switched bootstrap file naming convention. If you wish to build images based on bootstrap from before June 2025 you'll need to include `${ARCH_BOOTSTRAP_VERSION}` in `ARCH_BOOTSTRAP_URL` in `Dockerfile`:
+
+```diff
+-RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.zst \
++RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-x86_64.tar.zst \
+```

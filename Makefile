@@ -15,10 +15,10 @@ IMG_BUILD_DAY=$(shell date +%d)
 IMG_BUILD_MONTH=$(shell date +%m)
 IMG_BUILD_YEAR=$(shell date +%Y)
 
-ARCH_MIRROR=https://mirror.puzzle.ch
+ARCH_MIRROR=https://theswissbay.ch
 
 
-IMG_NAME=techgk/arch:${PACMAN_ARCHIVES_YEAR}${PACMAN_ARCHIVES_MONTH}${PACMAN_ARCHIVES_DAY}
+IMG_NAME=docker.io/techgk/arch:${PACMAN_ARCHIVES_YEAR}${PACMAN_ARCHIVES_MONTH}${PACMAN_ARCHIVES_DAY}
 
 
 list:
@@ -49,9 +49,9 @@ run:
 		/bin/bash
 
 push:
-	@ $(MAKE) -s build DOCKER=docker;
-	@ cat "${DOCKER_SECRET}" | docker login --username techgk --password-stdin
-	@ docker push ${IMG_NAME}
-	@ docker tag ${IMG_NAME} techgk/arch:latest \
-		&& docker push techgk/arch:latest;
+	@ $(MAKE) -s build;
+	@ cat "${DOCKER_SECRET}" | ${DOCKER} login --username techgk --password-stdin
+	@ ${DOCKER} push ${IMG_NAME}
+	@ ${DOCKER} tag ${IMG_NAME} docker.io/techgk/arch:latest \
+		&& ${DOCKER} push docker.io/techgk/arch:latest;
 
