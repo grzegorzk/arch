@@ -28,9 +28,9 @@ RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/ar
     && ARCH_BOOTSTRAP_SIG_URL=https://archlinux.org/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.zst.sig \
     && echo "Downloading bootstrap from ${ARCH_BOOTSTRAP_URL}" \
     && cd /tmp \
-    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_URL} > image.tar.zst \
+    && curl -f -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_URL} > image.tar.zst \
     && echo "Downloading bootstrap .sig from ${ARCH_BOOTSTRAP_SIG_URL}" \
-    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_SIG_URL} > image.tar.zst.sig
+    && curl -f -0 --insecure --connect-timeout 600 --expect100-timeout 600 ${ARCH_BOOTSTRAP_SIG_URL} > image.tar.zst.sig
 
 # Arch master keys: https://archlinux.org/master-keys/
 RUN mkdir -p ~/.gnupg \
@@ -39,8 +39,8 @@ RUN mkdir -p ~/.gnupg \
     && pkill -i -e dirmngr || true \
     && cd /tmp \
     && echo "Obtaining the key from keyserver" \
-    && curl -0 --insecure --connect-timeout 600 --expect100-timeout 600 -X GET 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3e80ca1a8b89f69cba57d98a76a5ef9054449a5c' > /tmp/pierre.asc \
-    && gpg --import /tmp/pierre.asc \
+    && curl -f -0 --insecure --connect-timeout 600 --expect100-timeout 600 -X GET 'https://pierre-schmitz.com/gpg-keys/pierre-packager-key.asc' > /tmp/pierre-packager-key.asc \
+    && gpg --import /tmp/pierre-packager-key.asc \
     && echo "Verifying arch image" \
     && gpg -v --verify image.tar.zst.sig image.tar.zst \
     && tar -xf image.tar.zst \
