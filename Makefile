@@ -18,7 +18,7 @@ IMG_BUILD_YEAR=$(shell date +%Y)
 ARCH_MIRROR=https://theswissbay.ch
 
 
-IMG_NAME=docker.io/techgk/arch:${PACMAN_ARCHIVES_YEAR}${PACMAN_ARCHIVES_MONTH}${PACMAN_ARCHIVES_DAY}
+IMG_NAME=docker.io/techgk/arch:bootstrap_${IMG_BUILD_YEAR}${IMG_BUILD_MONTH}${IMG_BUILD_DAY}-archives_${PACMAN_ARCHIVES_YEAR}${PACMAN_ARCHIVES_MONTH}${PACMAN_ARCHIVES_DAY}
 
 
 list:
@@ -40,7 +40,6 @@ build:
 		--build-arg PACMAN_ARCHIVES_YEAR=${PACMAN_ARCHIVES_YEAR} \
 		--build-arg ARCH_MIRROR="${ARCH_MIRROR}" \
 		-t ${IMG_NAME} .;
-	@ ${DOCKER} tag ${IMG_NAME} ${IMG_NAME}_${IMG_BUILD_YEAR}${IMG_BUILD_MONTU}${IMG_BUILD_DAY}
 
 run:
 	@ ${DOCKER} run \
