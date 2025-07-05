@@ -33,3 +33,10 @@ In June 2025 mirrors switched bootstrap file naming convention. If you wish to b
 -RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.zst \
 +RUN ARCH_BOOTSTRAP_URL=${ARCH_MIRROR}/archlinux/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-x86_64.tar.zst \
 ```
+
+In July 2025 sig url cought up with the above change, to build images before July 2025 you'll need to include `${ARCH_BOOTSTRAP_VERSION}` in `ARCH_BOOTSTRAP_SIG_URL` in `Dockerfile`:
+
+```diff
+-    && ARCH_BOOTSTRAP_SIG_URL=https://archlinux.org/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-${ARCH_BOOTSTRAP_VERSION}-x86_64.tar.zst.sig \
++    && ARCH_BOOTSTRAP_SIG_URL=https://archlinux.org/iso/${ARCH_BOOTSTRAP_VERSION}/archlinux-bootstrap-x86_64.tar.zst.sig \
+```
