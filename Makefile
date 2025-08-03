@@ -51,8 +51,8 @@ push:
 	@ $(MAKE) -s build;
 	@ cat "${DOCKER_SECRET}" | ${DOCKER} login --username techgk --password-stdin
 	@ ${DOCKER} push ${IMG_NAME}
-	@ ${DOCKER} tag ${IMG_NAME} docker.io/techgk/arch:${ARCH_BOOTSTRAP_DAY}${BOOTSTRAP_MONTH}${BOOTSTRAP_DAY} \
-		&& ${DOCKER} push docker.io/techgk/arch:${ARCH_BOOTSTRAP_DAY}${BOOTSTRAP_MONTH}${BOOTSTRAP_DAY};
+	@ ${DOCKER} tag ${IMG_NAME} docker.io/techgk/arch:${BOOTSTRAP_YEAR}${BOOTSTRAP_MONTH}${BOOTSTRAP_DAY} \
+		&& ${DOCKER} push docker.io/techgk/arch:${BOOTSTRAP_YEAR}${BOOTSTRAP_MONTH}${BOOTSTRAP_DAY};
 	@ ${DOCKER} tag ${IMG_NAME} docker.io/techgk/arch:latest \
 		&& ${DOCKER} push docker.io/techgk/arch:latest;
 
