@@ -61,7 +61,7 @@ RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
     && cp /etc/pacman.conf /etc/pacman.conf.bak \
     && awk '{gsub(/SigLevel.*= Required DatabaseOptional/,"SigLevel = Never");gsub(/\[community\]/,"\[community\]\nSigLevel = Never");}1' /etc/pacman.conf.bak > /etc/pacman.conf \
-    && pacman -Sy --noconfirm archlinux-keyring haveged sed wget \
+    && pacman -Sy --noconfirm --disable-sandbox archlinux-keyring haveged sed wget \
     && cp /etc/pacman.conf.bak /etc/pacman.conf \
     && haveged -w 1024 \
     && pacman-key --init \
@@ -69,8 +69,8 @@ RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages
     && mkdir -p /build/var/lib/pacman \
     && echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages in final system" \
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
-    && pacman -Sy --noconfirm archlinux-keyring ca-certificates \
-    && pacman -r /build -Sy --disable-download-timeout --noconfirm \
+    && pacman -Sy --noconfirm --disable-sandbox archlinux-keyring ca-certificates \
+    && pacman -r /build -Sy --disable-download-timeout --noconfirm --disable-sandbox \
         bash \
         bzip2 \
         gzip \
