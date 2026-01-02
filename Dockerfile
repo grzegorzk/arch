@@ -60,17 +60,18 @@ ARG ARCH_ARCHIVE_MIRROR=https://archive.archlinux.org/repos/${PACMAN_ARCHIVES_VE
 RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages in boostrap system" \
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
     && cp /etc/pacman.conf /etc/pacman.conf.bak \
-    && awk '{gsub(/SigLevel.*= Required DatabaseOptional/,"SigLevel = Never");gsub(/\[community\]/,"\[community\]\nSigLevel = Never");}1' /etc/pacman.conf.bak > /etc/pacman.conf \
-    && pacman -Sy --noconfirm --disable-sandbox archlinux-keyring haveged sed wget \
+    && awk '{gsub(/SigLevel.*= Required DatabaseOptional/,"SigLevel = Never");gsub(/\[community\]/,"\[community\]\nSigLevel = Never");gsub(/DownloadUser.*=.*alpm/,"DownloadUser = alpm\nDisableSandbox");}1' /etc/pacman.conf.bak > /etc/pacman.conf \
+    && pacman -Sy --noconfirm archlinux-keyring haveged sed wget \
     && cp /etc/pacman.conf.bak /etc/pacman.conf \
+    && sed -i '/DownloadUser/a DisableSandbox' /etc/pacman.conf \
     && haveged -w 1024 \
     && pacman-key --init \
     && pacman-key --populate archlinux \
     && mkdir -p /build/var/lib/pacman \
     && echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages in final system" \
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" > /etc/pacman.d/mirrorlist \
-    && pacman -Sy --noconfirm --disable-sandbox archlinux-keyring ca-certificates \
-    && pacman -r /build -Sy --disable-download-timeout --noconfirm --disable-sandbox \
+    && pacman -Sy --noconfirm archlinux-keyring ca-certificates \
+    && pacman -r /build -Sy --disable-download-timeout --noconfirm \
         bash \
         bzip2 \
         gzip \
