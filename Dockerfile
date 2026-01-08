@@ -84,6 +84,7 @@ RUN echo "Using packages mirror '${ARCH_ARCHIVE_MIRROR}' for installing packages
         wget \
     && rm -rf /var/cache/pacman/pkg/* \
     && /bin/bash /build/root/skim.sh --root=/build \
+    && sed -i '/DownloadUser/a DisableSandbox' /build/etc/pacman.conf \
     && echo "Server = ${ARCH_ARCHIVE_MIRROR}" >> /build/etc/pacman.d/mirrorlist
 
 FROM scratch AS arch
